@@ -1,6 +1,7 @@
 package gsheets
 
 import (
+	"context"
 	"slices"
 	"strings"
 	"time"
@@ -14,8 +15,8 @@ type GsheetsParser struct {
 	srv *sheets.Service
 }
 
-func New() (GsheetsParser, error) {
-	srv, err := googleapi.NewSheetsService()
+func New(ctx context.Context, credentialsPath string) (GsheetsParser, error) {
+	srv, err := googleapi.NewSheetsService(ctx, credentialsPath)
 	if err != nil {
 		return GsheetsParser{}, err
 	}

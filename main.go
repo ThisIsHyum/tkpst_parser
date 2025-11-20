@@ -23,7 +23,7 @@ func hm(hour, minute int) time.Time {
 	return time.Date(0, 0, 0, hour, minute, 0, 0, time.UTC)
 }
 
-func (p Parser) GetCalls() ([]types.Call, error) {
+func (p *Parser) GetCalls() ([]types.Call, error) {
 	saturday := []time.Weekday{time.Saturday}
 	allDays := []time.Weekday{time.Monday, time.Tuesday, time.Wednesday, time.Thursday, time.Friday}
 
@@ -44,12 +44,12 @@ func (p Parser) GetCalls() ([]types.Call, error) {
 	return calls, nil
 }
 
-func (p Parser) GetStudentGroupNames(campusName string) ([]string, error) {
+func (p *Parser) GetStudentGroupNames(campusName string) ([]string, error) {
 	values := p.campusesValues[campusName]
 	return p.gp.GetGroupNames(values), nil
 }
 
-func (p Parser) SendLessons(groups map[string]uint, lessonsChan chan<- []types.Lesson) error {
+func (p *Parser) SendLessons(groups map[string]uint, lessonsChan chan<- []types.Lesson) error {
 	for {
 		for _, id := range p.campuses {
 			values, err := p.gp.GetValues(id)
@@ -66,21 +66,21 @@ func (p Parser) SendLessons(groups map[string]uint, lessonsChan chan<- []types.L
 	}
 }
 
-func NewParser(campuses map[string]string) (Parser, error) {
-	gsheetsParser, err := gsheets.New()
+func NewParser(ctx context.Context, campuses map[string]string, credentialsPath string) (*Parser, error) {
+	gsheetsParser, err := gsheets.New(ctx, credentialsPath)
 	if err != nil {
-		return Parser{}, err
+		return nil, err
 	}
 
 	campusesValues := map[string][]*sheets.RowData{}
 	for campusName, campusId := range campuses {
 		values, err := gsheetsParser.GetValues(campusId)
 		if err != nil {
-			return Parser{}, err
+			return nil, err
 		}
 		campusesValues[campusName] = values
 	}
-	return Parser{
+	return &Parser{
 		campuses:       campuses,
 		gp:             gsheetsParser,
 		campusesValues: campusesValues,
@@ -88,23 +88,24 @@ func NewParser(campuses map[string]string) (Parser, error) {
 }
 
 func main() {
+	ctx := context.Background()
 	config, err := config.LoadConfig()
 	if err != nil {
 		slog.Error("unable load config", "error", err)
 		os.Exit(1)
 	}
-	client, err := osago.NewParserClient(context.Background(), config.OsaUrl, config.Token, 10*time.Second)
+	client, err := osago.NewParserClient(ctx, config.OsaUrl, config.Token, 10*time.Second)
 	if err != nil {
 		slog.Error("unable to create parser client", "error", err)
 		os.Exit(1)
 	}
-	parser, err := NewParser(map[string]string{
+	parser, err := NewParser(ctx, map[string]string{
 		"Самарцева":               "15yQ7MCTqWIIvfb3Qw9ie-4Off7bpR7ovSwbhXw1Iuyg",
 		"Рылеева":                 "11y4dLT68xrStKvDSC7LmCNxrGXhkWsRMjOOYHWYDyc0",
 		"Луначарского 1 курс":     "1kTvUP7cH-8l1yJf9cgQ8-hxkk9cPo3N67miH8Nu0abA",
 		"Луначарского 2 курс":     "1PqnXQrm84iRwrR8obKysz6UCZXqbxWuDkhc9c2VYAKY",
 		"Луначарского 3 и 4 курс": "1h1nu_K66V5KfQDy72rCKXueWSUn84mwl4kQI0aer5B4",
-	})
+	}, config.CredentialsPath)
 	if err != nil {
 		slog.Error("unable to create parser", "error", err)
 		os.Exit(1)
@@ -112,7 +113,7 @@ func main() {
 
 	client.SetParser(parser)
 
-	if err := client.Run(context.Background()); err != nil {
+	if err := client.Run(ctx); err != nil {
 		slog.Error("unable to run parser client", "error", err)
 		os.Exit(1)
 	}
