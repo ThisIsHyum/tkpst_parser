@@ -6,17 +6,16 @@ import (
 	"os"
 	"time"
 	"tkpst_parser/config"
-	"tkpst_parser/gsheets"
+	"tkpst_parser/parser"
 
 	"github.com/ThisIsHyum/osago"
 	"github.com/ThisIsHyum/osago/types"
-	"google.golang.org/api/sheets/v4"
 )
 
 type Parser struct {
-	gp             gsheets.GsheetsParser
-	campuses       map[string]string
-	campusesValues map[string][]*sheets.RowData
+	p        parser.Parser
+	campuses map[string]string
+	groups   map[string][]string
 }
 
 func hm(hour, minute int) time.Time {
@@ -45,18 +44,17 @@ func (p *Parser) GetCalls() ([]types.Call, error) {
 }
 
 func (p *Parser) GetStudentGroupNames(campusName string) ([]string, error) {
-	values := p.campusesValues[campusName]
-	return p.gp.GetGroupNames(values), nil
+	return p.groups[campusName], nil
 }
 
 func (p *Parser) SendLessons(groups map[string]uint, lessonsChan chan<- []types.Lesson) error {
 	for {
 		for _, id := range p.campuses {
-			values, err := p.gp.GetValues(id)
+			values, err := p.p.GetValues(id)
 			if err != nil {
 				return err
 			}
-			lessons, err := p.gp.GetLessons(values, groups)
+			lessons, err := p.p.GetLessons(values, groups)
 			if err != nil {
 				return err
 			}
@@ -66,24 +64,20 @@ func (p *Parser) SendLessons(groups map[string]uint, lessonsChan chan<- []types.
 	}
 }
 
-func NewParser(ctx context.Context, campuses map[string]string, credentialsPath string) (*Parser, error) {
-	gsheetsParser, err := gsheets.New(ctx, credentialsPath)
-	if err != nil {
-		return nil, err
-	}
-
-	campusesValues := map[string][]*sheets.RowData{}
+func NewParser(ctx context.Context, campuses map[string]string) (*Parser, error) {
+	parser := parser.New()
+	groups := map[string][]string{}
 	for campusName, campusId := range campuses {
-		values, err := gsheetsParser.GetValues(campusId)
+		values, err := parser.GetValues(campusId)
 		if err != nil {
 			return nil, err
 		}
-		campusesValues[campusName] = values
+		groups[campusName] = parser.GetGroupNames(values)
 	}
 	return &Parser{
-		campuses:       campuses,
-		gp:             gsheetsParser,
-		campusesValues: campusesValues,
+		campuses: campuses,
+		p:        parser,
+		groups:   groups,
 	}, nil
 }
 
@@ -105,7 +99,7 @@ func main() {
 		"Луначарского 1 курс":     "1kTvUP7cH-8l1yJf9cgQ8-hxkk9cPo3N67miH8Nu0abA",
 		"Луначарского 2 курс":     "1PqnXQrm84iRwrR8obKysz6UCZXqbxWuDkhc9c2VYAKY",
 		"Луначарского 3 и 4 курс": "1h1nu_K66V5KfQDy72rCKXueWSUn84mwl4kQI0aer5B4",
-	}, config.CredentialsPath)
+	})
 	if err != nil {
 		slog.Error("unable to create parser", "error", err)
 		os.Exit(1)

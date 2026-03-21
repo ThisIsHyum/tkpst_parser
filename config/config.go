@@ -10,9 +10,8 @@ import (
 const envPrefix = "PARSER_"
 
 type Config struct {
-	OsaUrl          string `env:"OSAURL,required"`
-	Token           string `env:"TOKEN,required"`
-	CredentialsPath string `env:"CREDENTIALS_PATH,required"`
+	OsaUrl string `env:"OSAURL,required"`
+	Token  string `env:"TOKEN,required"`
 }
 
 func LoadConfig() (*Config, error) {
