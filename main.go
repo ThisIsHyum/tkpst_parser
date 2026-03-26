@@ -48,19 +48,30 @@ func (p *Parser) GetStudentGroupNames(campusName string) ([]string, error) {
 }
 
 func (p *Parser) SendLessons(groups map[string]uint, lessonsChan chan<- []types.Lesson) error {
-	for {
-		for _, id := range p.campuses {
+	for i := 1; ; i++ {
+		if i > 1 {
+			time.Sleep(10 * time.Minute)
+		}
+		slog.Info("sending lessons started", slog.Any("iter", i))
+		for campusName, id := range p.campuses {
+			slog.Info("fetching values", slog.Any("campus", campusName))
 			values, err := p.p.GetValues(id)
 			if err != nil {
-				return err
+				slog.Error("failed to get values", slog.Any("campus", campusName), slog.Any("error", err))
+				continue
 			}
+
+			slog.Info("getting lessons", slog.Any("campus", campusName))
 			lessons, err := p.p.GetLessons(values, groups)
 			if err != nil {
-				return err
+				slog.Error("failed to get lessons", slog.Any("campus", campusName), slog.Any("error", err))
+				continue
 			}
+
+			slog.Info("sending lessons to channel", slog.Any("campus", campusName), slog.Any("lessons_count", len(lessons)))
 			lessonsChan <- lessons
 		}
-		time.Sleep(10 * time.Minute)
+		slog.Info("sending lessons ended", slog.Any("iter", i))
 	}
 }
 
@@ -88,11 +99,15 @@ func main() {
 		slog.Error("unable load config", "error", err)
 		os.Exit(1)
 	}
+	slog.Info("config is loaded")
+
 	client, err := osago.NewParserClient(ctx, config.OsaUrl, config.Token, 10*time.Second)
 	if err != nil {
 		slog.Error("unable to create parser client", "error", err)
 		os.Exit(1)
 	}
+	slog.Info("client is created", slog.Any("osa_url", config.OsaUrl))
+
 	parser, err := NewParser(ctx, map[string]string{
 		"Самарцева":               "15yQ7MCTqWIIvfb3Qw9ie-4Off7bpR7ovSwbhXw1Iuyg",
 		"Рылеева":                 "11y4dLT68xrStKvDSC7LmCNxrGXhkWsRMjOOYHWYDyc0",
@@ -104,6 +119,7 @@ func main() {
 		slog.Error("unable to create parser", "error", err)
 		os.Exit(1)
 	}
+	slog.Info("parser is created")
 
 	client.SetParser(parser)
 
