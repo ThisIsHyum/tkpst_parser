@@ -87,7 +87,7 @@ func getLesson(values []string, row []string, l int, order uint, date time.Time,
 	}
 
 	title := row[l*2]
-	teacher := strings.Replace(row[l*2], "\n", "/", 1)
+	teacher := strings.Replace(values[l*2], "\n", "/", 1)
 
 	return types.NewLesson(title, cabinet, teacher, date, groupID, order)
 }
