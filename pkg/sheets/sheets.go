@@ -8,7 +8,6 @@ import (
 	"time"
 )
 
-// Sheets клиент для скачивания CSV
 type Sheets struct{ client http.Client }
 
 func New() Sheets {
@@ -23,7 +22,6 @@ func New() Sheets {
 	}
 }
 
-// Values скачивает CSV и возвращает строки
 func (s Sheets) Values(id string) ([][]string, error) {
 	url := fmt.Sprintf("https://docs.google.com/spreadsheets/d/%s/export?format=csv", id)
 
