@@ -77,7 +77,7 @@ func (p *Parser) SendLessons(groups map[string]uint, lessonsChan chan<- []types.
 	}
 }
 
-func NewParser(ctx context.Context, campuses map[string]string,
+func NewParser(campuses map[string]string,
 	maxRetries int, retryDelay time.Duration, interval time.Duration) (*Parser, error) {
 	parser := parser.New(maxRetries, retryDelay)
 	groups := map[string][]string{}
@@ -112,7 +112,7 @@ func main() {
 	}
 	slog.Info("client is created", slog.Any("osa_url", config.OsaUrl))
 
-	parser, err := NewParser(ctx, map[string]string{
+	parser, err := NewParser(map[string]string{
 		"Самарцева":               "15yQ7MCTqWIIvfb3Qw9ie-4Off7bpR7ovSwbhXw1Iuyg",
 		"Рылеева":                 "11y4dLT68xrStKvDSC7LmCNxrGXhkWsRMjOOYHWYDyc0",
 		"Луначарского 1 курс":     "1kTvUP7cH-8l1yJf9cgQ8-hxkk9cPo3N67miH8Nu0abA",
