@@ -16,6 +16,8 @@ type Config struct {
 
 	MaxRetries int           `env:"RETRIES" envDefault:"3"`
 	RetryDelay time.Duration `env:"RETRY_DELAY" envDefault:"2s"`
+
+	Interval time.Duration `env:"INTERVAL" envDefault:"1h"`
 }
 
 func LoadConfig() (*Config, error) {
