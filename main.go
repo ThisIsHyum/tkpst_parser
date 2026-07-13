@@ -105,7 +105,7 @@ func main() {
 	}
 	slog.Info("config is loaded")
 
-	client, err := osago.NewParserClient(ctx, config.OsaUrl, config.Token, 10*time.Second)
+	client, err := osago.NewParserClient(ctx, config.OsaUrl, config.Token, config.Timeout)
 	if err != nil {
 		slog.Error("unable to create parser client", "error", err)
 		os.Exit(1)

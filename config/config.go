@@ -17,6 +17,7 @@ type Config struct {
 	MaxRetries int           `env:"RETRIES" envDefault:"3"`
 	RetryDelay time.Duration `env:"RETRY_DELAY" envDefault:"2s"`
 
+	Timeout  time.Duration `env:"TIMEOUT" envDefault:"10s"`
 	Interval time.Duration `env:"INTERVAL" envDefault:"1h"`
 }
 
