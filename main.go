@@ -75,8 +75,8 @@ func (p *Parser) SendLessons(groups map[string]uint, lessonsChan chan<- []types.
 	}
 }
 
-func NewParser(ctx context.Context, campuses map[string]string) (*Parser, error) {
-	parser := parser.New()
+func NewParser(ctx context.Context, campuses map[string]string, maxRetries int, retryDelay time.Duration) (*Parser, error) {
+	parser := parser.New(maxRetries, retryDelay)
 	groups := map[string][]string{}
 	for campusName, campusId := range campuses {
 		values, err := parser.GetValues(campusId)
@@ -114,7 +114,7 @@ func main() {
 		"Луначарского 1 курс":     "1kTvUP7cH-8l1yJf9cgQ8-hxkk9cPo3N67miH8Nu0abA",
 		"Луначарского 2 курс":     "1PqnXQrm84iRwrR8obKysz6UCZXqbxWuDkhc9c2VYAKY",
 		"Луначарского 3 и 4 курс": "1h1nu_K66V5KfQDy72rCKXueWSUn84mwl4kQI0aer5B4",
-	})
+	}, config.MaxRetries, config.RetryDelay)
 	if err != nil {
 		slog.Error("unable to create parser", "error", err)
 		os.Exit(1)

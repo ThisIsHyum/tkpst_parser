@@ -16,9 +16,9 @@ type Parser struct {
 	client sheets.Sheets
 }
 
-func New() Parser {
+func New(maxRetries int, retryDelay time.Duration) Parser {
 	return Parser{
-		client: sheets.New(),
+		client: sheets.New(maxRetries, retryDelay),
 	}
 }
 

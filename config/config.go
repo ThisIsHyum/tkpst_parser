@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/caarlos0/env/v11"
 	_ "github.com/joho/godotenv/autoload"
@@ -12,6 +13,9 @@ const envPrefix = "PARSER_"
 type Config struct {
 	OsaUrl string `env:"OSAURL,required"`
 	Token  string `env:"TOKEN,required"`
+
+	MaxRetries int           `env:"RETRIES" envDefault:"3"`
+	RetryDelay time.Duration `env:"RETRY_DELAY" envDefault:"2s"`
 }
 
 func LoadConfig() (*Config, error) {
