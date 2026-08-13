@@ -42,7 +42,7 @@ func (p Parser) GetGroupNames(values [][]string) []string {
 func (p Parser) GetLessons(values [][]string, groups map[string]int64) ([]*models.DtoLesson, error) {
 	var lessons []*models.DtoLesson
 	var currentGroup string
-	var currentGroupID, currentOrder int64
+	var currentGroupID, currentOrder, mondayOrder int64
 
 	for i, row := range values {
 		if len(row) == 0 {
@@ -56,18 +56,31 @@ func (p Parser) GetLessons(values [][]string, groups map[string]int64) ([]*model
 		}
 
 		if len(row) > 2 && strings.Contains(row[2], "Классный час") {
+			mondayOrder++
+			lessons = append(lessons, getLesson(
+				values[i+2], row, 1, mondayOrder,
+				getDate(values, 1), currentGroupID,
+			))
 			continue
 		}
 
 		if _, ok := lessonNums[row[0]]; ok {
 			currentOrder++
+			mondayOrder++
+			if mondayOrder == 1 || mondayOrder == 5 {
+				mondayOrder++
+			}
 			for j := 0; j < 6; j++ {
 				date := getDate(values, j+1)
+				order := currentOrder
+				if date.Weekday() == time.Monday {
+					order = mondayOrder
+				}
 				if i+2 >= len(values) {
 					continue
 				}
 				lessons = append(lessons, getLesson(
-					values[i+2], row, j+1, currentOrder,
+					values[i+2], row, j+1, order,
 					date, currentGroupID,
 				))
 			}
@@ -97,7 +110,28 @@ func getLesson(values []string, row []string, l int, order int64, date time.Time
 		StudentGroupID: groupID,
 		Order:          order,
 	}
+}
 
+func getClassHour(values []string, row []string, l int, order int64, date time.Time, groupID int64) *models.DtoLesson {
+	if len(row) <= l*2 {
+		return &models.DtoLesson{}
+	}
+
+	cabinet := row[(l*2)+1]
+	if len(values) > (l*2)+1 && values[(l*2)+1] != "" {
+		cabinet += "/" + values[(l*2)+1][1:]
+	}
+
+	title := row[l*2]
+
+	return &models.DtoLesson{
+		Title:          title,
+		Cabinet:        cabinet,
+		Teacher:        "",
+		Date:           date.Format(time.DateOnly),
+		StudentGroupID: groupID,
+		Order:          order,
+	}
 }
 
 func getDate(values [][]string, num int) time.Time {

@@ -2,8 +2,10 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"os"
+	"slices"
 	"time"
 	"tkpst_parser/config"
 	"tkpst_parser/parser"
@@ -39,9 +41,19 @@ type Parser struct {
 
 func (p *Parser) GetCalls() ([]*models.DtoCall, error) {
 	saturday := []time.Weekday{time.Saturday}
-	allDays := []time.Weekday{time.Monday, time.Tuesday, time.Wednesday, time.Thursday, time.Friday}
+	monday := []time.Weekday{time.Monday}
+	allDays := []time.Weekday{time.Tuesday, time.Wednesday, time.Thursday, time.Friday}
 
 	calls := []*models.DtoCall{}
+	calls = append(calls, NewCalls(monday, 1, hm(8, 00), hm(8, 30))...) // class hour
+	calls = append(calls, NewCalls(monday, 2, hm(8, 30), hm(10, 00))...)
+	calls = append(calls, NewCalls(monday, 3, hm(10, 10), hm(11, 40))...)
+	calls = append(calls, NewCalls(monday, 4, hm(12, 20), hm(13, 50))...)
+	calls = append(calls, NewCalls(monday, 5, hm(14, 00), hm(14, 30))...) // class hour
+	calls = append(calls, NewCalls(monday, 6, hm(14, 35), hm(16, 05))...)
+	calls = append(calls, NewCalls(monday, 7, hm(16, 15), hm(17, 45))...)
+	calls = append(calls, NewCalls(monday, 8, hm(17, 50), hm(18, 50))...)
+
 	calls = append(calls, NewCalls(allDays, 1, hm(8, 30), hm(10, 00))...)
 	calls = append(calls, NewCalls(allDays, 2, hm(10, 10), hm(11, 40))...)
 	calls = append(calls, NewCalls(allDays, 3, hm(12, 20), hm(13, 50))...)
@@ -82,6 +94,11 @@ func (p *Parser) SendLessons(groups map[string]int64, lessonsChan chan<- []*mode
 				slog.Error("failed to get lessons", slog.Any("campus", campusName), slog.Any("error", err))
 				continue
 			}
+
+			l := slices.CompactFunc(lessons, func(lesson, _ *models.DtoLesson) bool {
+				return lesson.StudentGroupID == 522
+			})
+			fmt.Println(l[0].Title)
 
 			slog.Info("sending lessons to channel", slog.Any("campus", campusName), slog.Any("lessons_count", len(lessons)))
 			lessonsChan <- lessons
