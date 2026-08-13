@@ -5,7 +5,7 @@ import (
 	"time"
 	"tkpst_parser/pkg/sheets"
 
-	"github.com/ThisIsHyum/osago/types"
+	"github.com/ThisIsHyum/osago/models"
 )
 
 var lessonNums = map[string]struct{}{
@@ -39,10 +39,10 @@ func (p Parser) GetGroupNames(values [][]string) []string {
 	return groupNames
 }
 
-func (p Parser) GetLessons(values [][]string, groups map[string]uint) ([]types.Lesson, error) {
-	var lessons []types.Lesson
+func (p Parser) GetLessons(values [][]string, groups map[string]int64) ([]*models.DtoLesson, error) {
+	var lessons []*models.DtoLesson
 	var currentGroup string
-	var currentGroupID, currentOrder uint
+	var currentGroupID, currentOrder int64
 
 	for i, row := range values {
 		if len(row) == 0 {
@@ -76,9 +76,9 @@ func (p Parser) GetLessons(values [][]string, groups map[string]uint) ([]types.L
 	return lessons, nil
 }
 
-func getLesson(values []string, row []string, l int, order uint, date time.Time, groupID uint) types.Lesson {
+func getLesson(values []string, row []string, l int, order int64, date time.Time, groupID int64) *models.DtoLesson {
 	if len(row) <= l*2 {
-		return types.Lesson{}
+		return &models.DtoLesson{}
 	}
 
 	cabinet := row[(l*2)+1]
@@ -89,7 +89,15 @@ func getLesson(values []string, row []string, l int, order uint, date time.Time,
 	title := row[l*2]
 	teacher := strings.Replace(values[l*2], "\n", "/", 1)
 
-	return types.NewLesson(title, cabinet, teacher, date, groupID, order)
+	return &models.DtoLesson{
+		Title:          title,
+		Cabinet:        cabinet,
+		Teacher:        teacher,
+		Date:           date.Format(time.DateOnly),
+		StudentGroupID: groupID,
+		Order:          order,
+	}
+
 }
 
 func getDate(values [][]string, num int) time.Time {

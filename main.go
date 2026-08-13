@@ -9,8 +9,25 @@ import (
 	"tkpst_parser/parser"
 
 	"github.com/ThisIsHyum/osago"
-	"github.com/ThisIsHyum/osago/types"
+	"github.com/ThisIsHyum/osago/models"
 )
+
+func NewCalls(weekdays []time.Weekday, order int64, begins, ends time.Time) []*models.DtoCall {
+	var calls = make([]*models.DtoCall, 0, len(weekdays))
+	for _, weekday := range weekdays {
+		calls = append(calls, &models.DtoCall{
+			Begins:  begins.Format("15:04"),
+			Ends:    ends.Format("15:04"),
+			Weekday: models.TimeWeekday(weekday),
+			Order:   order,
+		})
+	}
+	return calls
+}
+
+func hm(hour, minute int) time.Time {
+	return time.Date(0, 0, 0, hour, minute, 0, 0, time.UTC)
+}
 
 type Parser struct {
 	p        parser.Parser
@@ -20,28 +37,24 @@ type Parser struct {
 	interval time.Duration
 }
 
-func hm(hour, minute int) time.Time {
-	return time.Date(0, 0, 0, hour, minute, 0, 0, time.UTC)
-}
-
-func (p *Parser) GetCalls() ([]types.Call, error) {
+func (p *Parser) GetCalls() ([]*models.DtoCall, error) {
 	saturday := []time.Weekday{time.Saturday}
 	allDays := []time.Weekday{time.Monday, time.Tuesday, time.Wednesday, time.Thursday, time.Friday}
 
-	calls := []types.Call{}
-	calls = append(calls, types.NewCalls(allDays, 1, hm(8, 30), hm(10, 00))...)
-	calls = append(calls, types.NewCalls(allDays, 2, hm(10, 10), hm(11, 40))...)
-	calls = append(calls, types.NewCalls(allDays, 3, hm(12, 20), hm(13, 50))...)
-	calls = append(calls, types.NewCalls(allDays, 4, hm(14, 00), hm(15, 30))...)
-	calls = append(calls, types.NewCalls(allDays, 5, hm(15, 40), hm(17, 10))...)
-	calls = append(calls, types.NewCalls(allDays, 6, hm(17, 20), hm(18, 50))...)
+	calls := []*models.DtoCall{}
+	calls = append(calls, NewCalls(allDays, 1, hm(8, 30), hm(10, 00))...)
+	calls = append(calls, NewCalls(allDays, 2, hm(10, 10), hm(11, 40))...)
+	calls = append(calls, NewCalls(allDays, 3, hm(12, 20), hm(13, 50))...)
+	calls = append(calls, NewCalls(allDays, 4, hm(14, 00), hm(15, 30))...)
+	calls = append(calls, NewCalls(allDays, 5, hm(15, 40), hm(17, 10))...)
+	calls = append(calls, NewCalls(allDays, 6, hm(17, 20), hm(18, 50))...)
 
-	calls = append(calls, types.NewCalls(saturday, 1, hm(8, 30), hm(9, 30))...)
-	calls = append(calls, types.NewCalls(saturday, 2, hm(9, 40), hm(10, 40))...)
-	calls = append(calls, types.NewCalls(saturday, 3, hm(10, 50), hm(11, 50))...)
-	calls = append(calls, types.NewCalls(saturday, 4, hm(12, 10), hm(13, 10))...)
-	calls = append(calls, types.NewCalls(saturday, 5, hm(13, 20), hm(14, 20))...)
-	calls = append(calls, types.NewCalls(saturday, 6, hm(14, 30), hm(15, 30))...)
+	calls = append(calls, NewCalls(saturday, 1, hm(8, 30), hm(9, 30))...)
+	calls = append(calls, NewCalls(saturday, 2, hm(9, 40), hm(10, 40))...)
+	calls = append(calls, NewCalls(saturday, 3, hm(10, 50), hm(11, 50))...)
+	calls = append(calls, NewCalls(saturday, 4, hm(12, 10), hm(13, 10))...)
+	calls = append(calls, NewCalls(saturday, 5, hm(13, 20), hm(14, 20))...)
+	calls = append(calls, NewCalls(saturday, 6, hm(14, 30), hm(15, 30))...)
 	return calls, nil
 }
 
@@ -49,7 +62,7 @@ func (p *Parser) GetStudentGroupNames(campusName string) ([]string, error) {
 	return p.groups[campusName], nil
 }
 
-func (p *Parser) SendLessons(groups map[string]uint, lessonsChan chan<- []types.Lesson) error {
+func (p *Parser) SendLessons(groups map[string]int64, lessonsChan chan<- []*models.DtoLesson) error {
 	for i := 1; ; i++ {
 		if i > 1 {
 			time.Sleep(p.interval)
@@ -127,7 +140,18 @@ func main() {
 
 	client.SetParser(parser)
 
-	if err := client.Run(ctx); err != nil {
+	var errChan = make(chan error)
+	defer close(errChan)
+	go func() {
+		for err := range errChan {
+			slog.Error("client error", slog.Any("error", err))
+		}
+	}()
+
+	err = client.Run(ctx, errChan)
+	close(errChan)
+
+	if err != nil {
 		slog.Error("unable to run parser client", "error", err)
 		os.Exit(1)
 	}
