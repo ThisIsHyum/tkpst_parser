@@ -112,28 +112,6 @@ func getLesson(values []string, row []string, l int, order int64, date time.Time
 	}
 }
 
-func getClassHour(values []string, row []string, l int, order int64, date time.Time, groupID int64) *models.DtoLesson {
-	if len(row) <= l*2 {
-		return &models.DtoLesson{}
-	}
-
-	cabinet := row[(l*2)+1]
-	if len(values) > (l*2)+1 && values[(l*2)+1] != "" {
-		cabinet += "/" + values[(l*2)+1][1:]
-	}
-
-	title := row[l*2]
-
-	return &models.DtoLesson{
-		Title:          title,
-		Cabinet:        cabinet,
-		Teacher:        "",
-		Date:           date.Format(time.DateOnly),
-		StudentGroupID: groupID,
-		Order:          order,
-	}
-}
-
 func getDate(values [][]string, num int) time.Time {
 	if len(values) < 12 {
 		return time.Time{}
