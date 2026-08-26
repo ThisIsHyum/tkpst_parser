@@ -107,6 +107,10 @@ func (p *Parser) SendLessons(groups map[string]int64, lessonsChan chan<- []*mode
 	}
 }
 
+func (p *Parser) SendReplaces(groups map[string]int64, replacesChan chan<- []*models.DtoReplace) error {
+	return nil
+}
+
 func NewParser(campuses map[string]string,
 	maxRetries int, retryDelay time.Duration, interval time.Duration) (*Parser, error) {
 	parser := parser.New(maxRetries, retryDelay)
@@ -166,7 +170,6 @@ func main() {
 	}()
 
 	err = client.Run(ctx, errChan)
-	close(errChan)
 
 	if err != nil {
 		slog.Error("unable to run parser client", "error", err)

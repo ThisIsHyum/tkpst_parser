@@ -3,9 +3,10 @@ module tkpst_parser
 go 1.25.1
 
 require (
-	github.com/ThisIsHyum/osago v0.3.2
+	github.com/ThisIsHyum/osago v0.4.0
 	github.com/caarlos0/env/v11 v11.3.1
 	github.com/joho/godotenv v1.5.1
+	github.com/mmonterroca/docxgo/v2 v2.13.0
 )
 
 require (
