@@ -52,19 +52,19 @@ func (p *Parser) GetCalls() ([]*models.DtoCall, error) {
 	calls = append(calls, NewCalls(monday, 7, hm(16, 15), hm(17, 45))...)
 	calls = append(calls, NewCalls(monday, 8, hm(17, 50), hm(18, 50))...)
 
-	calls = append(calls, NewCalls(allDays, 1, hm(8, 30), hm(10, 00))...)
-	calls = append(calls, NewCalls(allDays, 2, hm(10, 10), hm(11, 40))...)
-	calls = append(calls, NewCalls(allDays, 3, hm(12, 20), hm(13, 50))...)
-	calls = append(calls, NewCalls(allDays, 4, hm(14, 00), hm(15, 30))...)
+	calls = append(calls, NewCalls(allDays, 1, hm(8, 15), hm(9, 45))...)
+	calls = append(calls, NewCalls(allDays, 2, hm(9, 55), hm(11, 25))...)
+	calls = append(calls, NewCalls(allDays, 3, hm(12, 05), hm(13, 35))...)
+	calls = append(calls, NewCalls(allDays, 4, hm(13, 45), hm(15, 15))...)
 	calls = append(calls, NewCalls(allDays, 5, hm(15, 40), hm(17, 10))...)
 	calls = append(calls, NewCalls(allDays, 6, hm(17, 20), hm(18, 50))...)
 
-	calls = append(calls, NewCalls(saturday, 1, hm(8, 30), hm(9, 30))...)
-	calls = append(calls, NewCalls(saturday, 2, hm(9, 40), hm(10, 40))...)
-	calls = append(calls, NewCalls(saturday, 3, hm(10, 50), hm(11, 50))...)
-	calls = append(calls, NewCalls(saturday, 4, hm(12, 10), hm(13, 10))...)
-	calls = append(calls, NewCalls(saturday, 5, hm(13, 20), hm(14, 20))...)
-	calls = append(calls, NewCalls(saturday, 6, hm(14, 30), hm(15, 30))...)
+	calls = append(calls, NewCalls(saturday, 1, hm(8, 15), hm(9, 15))...)
+	calls = append(calls, NewCalls(saturday, 2, hm(9, 25), hm(10, 25))...)
+	calls = append(calls, NewCalls(saturday, 3, hm(10, 35), hm(11, 35))...)
+	calls = append(calls, NewCalls(saturday, 4, hm(12, 05), hm(13, 05))...)
+	calls = append(calls, NewCalls(saturday, 5, hm(13, 15), hm(14, 15))...)
+	calls = append(calls, NewCalls(saturday, 6, hm(14, 25), hm(15, 25))...)
 	return calls, nil
 }
 
