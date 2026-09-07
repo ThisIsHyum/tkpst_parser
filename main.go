@@ -2,10 +2,8 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 	"os"
-	"slices"
 	"time"
 	"tkpst_parser/config"
 	"tkpst_parser/parser"
@@ -94,11 +92,6 @@ func (p *Parser) SendLessons(groups map[string]int64, lessonsChan chan<- []*mode
 				slog.Error("failed to get lessons", slog.Any("campus", campusName), slog.Any("error", err))
 				continue
 			}
-
-			l := slices.CompactFunc(lessons, func(lesson, _ *models.DtoLesson) bool {
-				return lesson.StudentGroupID == 522
-			})
-			fmt.Println(l[0].Title)
 
 			slog.Info("sending lessons to channel", slog.Any("campus", campusName), slog.Any("lessons_count", len(lessons)))
 			lessonsChan <- lessons
