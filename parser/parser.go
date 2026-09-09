@@ -52,6 +52,7 @@ func (p Parser) GetLessons(values [][]string, groups map[string]int64) ([]*model
 		if strings.Contains(row[0], "Группа") {
 			currentGroup = strings.ToUpper(strings.TrimPrefix(row[0], "Группа - "))
 			currentGroupID = groups[currentGroup]
+			mondayOrder = 0
 			currentOrder = 0
 		}
 
