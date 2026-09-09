@@ -1,5 +1,7 @@
 github.com/ThisIsHyum/osago v0.4.0 h1:GkZSumm8Hq/zRgSi6en/Zienj89QYvoacmeTqGAkSK0=
 github.com/ThisIsHyum/osago v0.4.0/go.mod h1:lkhPFqDTwicrXSakZCQt9BhIGY6zedH/+L8hFLX+/S4=
+github.com/ThisIsHyum/osago v0.5.1 h1:nN+vSYKNr2taLqD6vaCmnTY3dY8IiNuI55a05PLJa2c=
+github.com/ThisIsHyum/osago v0.5.1/go.mod h1:lkhPFqDTwicrXSakZCQt9BhIGY6zedH/+L8hFLX+/S4=
 github.com/caarlos0/env/v11 v11.4.1 h1:fYwH0sWEsBSMPG7t4e/PEfTFzrWrpjyygXyUnWiSwEw=
 github.com/caarlos0/env/v11 v11.4.1/go.mod h1:qupehSf/Y0TUTsxKywqRt/vJjN5nz6vauiYEUUr8P4U=
 github.com/cespare/xxhash/v2 v2.3.0 h1:UL815xU9SqsFlibzuggzjXhog7bL6oX9BbNZnL2UFvs=
