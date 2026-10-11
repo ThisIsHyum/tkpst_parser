@@ -53,8 +53,8 @@ func (p *Parser) GetCalls() ([]*models.DtoCall, error) {
 	calls = append(calls, NewCalls(monday, 8, hm(17, 50), hm(18, 50))...)
 
 	calls = append(calls, NewCalls(allDays, 1, hm(8, 30), hm(10, 00))...)
-	calls = append(calls, NewCalls(allDays, 3, hm(10, 10), hm(11, 40))...)
-	calls = append(calls, NewCalls(allDays, 4, hm(12, 20), hm(13, 50))...)
+	calls = append(calls, NewCalls(allDays, 2, hm(10, 10), hm(11, 40))...)
+	calls = append(calls, NewCalls(allDays, 3, hm(12, 20), hm(13, 50))...)
 	calls = append(calls, NewCalls(allDays, 4, hm(14, 00), hm(15, 30))...)
 	calls = append(calls, NewCalls(allDays, 5, hm(15, 55), hm(17, 25))...)
 	calls = append(calls, NewCalls(allDays, 6, hm(17, 35), hm(19, 05))...)
